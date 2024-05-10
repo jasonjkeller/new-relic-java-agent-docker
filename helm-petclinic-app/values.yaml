@@ -6,9 +6,9 @@ replicaCount: 1
 
 image:
   repository: jkellernr/new-relic-java-agent-spring-petclinic:petclinic-app
-  pullPolicy: IfNotPresent
+  pullPolicy: Always #default is IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
@@ -25,7 +25,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+podAnnotations:
+  'instrumentation.newrelic.com/inject-java': 'true'
 podLabels: {}
 
 podSecurityContext: {}
@@ -98,10 +99,10 @@ tolerations: []
 affinity: {}
 
 # New Relic Java agent config
-new_relic_app_name: JavaPetClinicHelmChart
-new_relic_license_key: license_key
-new_relic_host: collector.newrelic.com
-new_relic_api_host: rpm.newrelic.com
-new_relic_metric_ingest_uri: https://metric-api.newrelic.com/metric/v1
-new_relic_event_ingest_uri: https://insights-collector.newrelic.com/v1/accounts/events
-new_relic_jfr_enabled: "true"
+#new_relic_app_name: JavaPetClinicHelmChart
+#new_relic_license_key: license_key
+#new_relic_host: collector.newrelic.com
+#new_relic_api_host: rpm.newrelic.com
+#new_relic_metric_ingest_uri: https://metric-api.newrelic.com/metric/v1
+#new_relic_event_ingest_uri: https://insights-collector.newrelic.com/v1/accounts/events
+#new_relic_jfr_enabled: "true"

@@ -89,6 +89,12 @@ A helm chart has already been created (i.e. `helm create <chart_name>`) and conf
 * Install kubectl: https://kubernetes.io/docs/tasks/tools/
 * Install minikube (for local testing): https://minikube.sigs.k8s.io/docs/start/
 
+### Start Minikube Kubernetes Cluster
+
+Ensure that Docker is running and then start up the minikube cluster as follows: 
+
+`minikube start`
+
 ### Configure Helm Chart To Use The Docker File For Petclinic Service
 
 A publicly available Docker file of the SpringBoot Petclinic service with the New Relic Java agent has been published to Dockerhub repository at: `jkellernr/new-relic-java-agent-spring-petclinic:petclinic-app`
@@ -105,127 +111,66 @@ By default, the Docker image is configured such that the Java agent will report 
 
 #### Helm Chart Install Dry Run Debugging 
 
-It is advisable to do a dry run (i.e. `helm install <chart_release_name> --dry-run --debug <chart_name>`) to debug before installing the chart:  
+It is advisable to do a dry run (i.e. `helm install <chart_release_name> --dry-run --debug <chart_name> -n newrelic`) to debug before installing the chart:  
 ```shell
-helm install helm-petclinic-app-release --dry-run \
---set new_relic_license_key="<license_key>" \
---debug helm-petclinic-app
+helm install helm-petclinic-app-release --dry-run --debug helm-petclinic-app -n newrelic
 ```
 
 #### Helm Chart Install
 
-Install (i.e. `helm install <chart_release_name> <chart_name>`) the helm chart:  
+Install (i.e. `helm install <chart_release_name> <chart_name> -n newrelic`) the helm chart:  
 ```shell
-helm install helm-petclinic-app-release \
---set new_relic_license_key="<license_key>" \
-helm-petclinic-app
+helm install helm-petclinic-app-release helm-petclinic-app -n newrelic
 ```
 
-#### Optional Helm Chart Config For New Relic Java Agent
+#### Inspect Generated Helm Chart
 
-Below is an example showing all the New Relic Java agent config options that can be set when installing this helm chart. This example shows how to configure the Java agent to report to a US Staging APM account:  
+Check the config generated for the helm chart after it is installed:
+
 ```shell
-helm install helm-petclinic-app-release \
---set new_relic_app_name="JavaPetClinicHelmChart" \
---set new_relic_license_key="<license_key>" \
---set new_relic_host="staging-collector.newrelic.com" \
---set new_relic_api_host="staging.newrelic.com" \
---set new_relic_metric_ingest_uri=https://staging-metric-api.newrelic.com/metric/v1 \
---set new_relic_event_ingest_uri=https://staging-insights-collector.newrelic.com/v1/accounts/events \
---set new_relic_jfr_enabled="\"true\"" \
-helm-petclinic-app
+kubectl describe service helm-petclinic-app-release -n newrelic
+kubectl describe pod helm-petclinic-app-release -n newrelic
 ```
+
+#### Expose Kubernetes Application On Localhost
+
+After the Helm chart has been installed successfully you'll see some commands like the following logged to the console. Execute those commands to make the application running in the Kubernetes cluster accessible on localhost of your dev machine.
+
+```
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace newrelic -l "app.kubernetes.io/name=helm-petclinic-app,app.kubernetes.io/instance=helm-petclinic-app-release" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace newrelic $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace newrelic port-forward $POD_NAME 8080:$CONTAINER_PORT
+```
+
+Alternatively, if a service is already running you can get a list of the service names via:
+
+`minikube service list`
+
+And access the service in a web browser via:
+
+`minikube service <service_name> -n newrelic`
 
 #### Making Changes To The Helm Chart Install
 
-You can uninstall (i.e. `helm uninstall <chart_release_name>`) the helm chart with the following command and then install it again with the updated settings:  
+You can uninstall (i.e. `helm uninstall <chart_release_name> -n newrelic`) the helm chart with the following command and then install it again with the updated settings:  
 ```shell
-helm uninstall helm-petclinic-app-release
+helm uninstall helm-petclinic-app-release -n newrelic
 ```
 
 #### Verifying Helm Chart Deployment
 
-Check deployment: `helm list -a` and `kubectl get deployments`  
-Check where deployment is running: `kubectl get service`
+Check deployment: `helm list -a -n newrelic` and `kubectl get deployments -n newrelic`  
+Check where deployment is running: `kubectl get service -n newrelic`
 
 #### Debugging
 
 View PetClinic service logs in Kubernetes:  
-`kubectl get pods`  
-`kubectl logs <pod_name>`  
+`kubectl get pods -n newrelic`  
+`kubectl logs <pod_name> -n newrelic`  
 
 Get shell into docker container in kubernetes to view Java agent logs:  
-`kubectl exec -it <pod_name> sh`  
-`cd logs && cat newrelic_agent.log`  
-
-#### Helm Chart Support For New Relic Java Agent
-
-For documentation purposes here are the files that have been updated to support configuring the Java agent via Helm charts. These could be extended to support other Java agent config if desired.
-
-values.yaml
-```yaml
-# New Relic Java agent config
-new_relic_app_name: JavaPetClinicHelmChart
-new_relic_license_key: license_key
-new_relic_host: collector.newrelic.com
-new_relic_api_host: rpm.newrelic.com
-new_relic_metric_ingest_uri: https://metric-api.newrelic.com/metric/v1
-new_relic_event_ingest_uri: https://insights-collector.newrelic.com/v1/accounts/events
-new_relic_jfr_enabled: "true"
-```
-
-templates/secret.yaml
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Release.Name }}-auth
-data:
-  new_relic_app_name: {{ .Values.new_relic_app_name | b64enc }}
-  new_relic_license_key: {{ .Values.new_relic_license_key | b64enc }}
-  new_relic_host: {{ .Values.new_relic_host | b64enc }}
-  new_relic_api_host: {{ .Values.new_relic_api_host | b64enc }}
-  new_relic_metric_ingest_uri: {{ .Values.new_relic_metric_ingest_uri | b64enc }}
-  new_relic_event_ingest_uri: {{ .Values.new_relic_event_ingest_uri | b64enc }}
-  new_relic_jfr_enabled: {{ .Values.new_relic_jfr_enabled | b64enc }}
-```
-
-templates/deployment.yaml
-```yaml
-          env:
-            - name: "NEW_RELIC_APP_NAME"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_app_name
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_LICENSE_KEY"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_license_key
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_HOST"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_host
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_API_HOST"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_api_host
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_METRIC_INGEST_URI"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_metric_ingest_uri
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_EVENT_INGEST_URI"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_event_ingest_uri
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_JFR_ENABLED"
-              valueFrom:
-                secretKeyRef:
-                 key: new_relic_jfr_enabled
-                  name: {{ .Release.Name }}-auth
-```
+`kubectl exec -it <pod_name> -n newrelic sh`  
+`cd ../newrelic-instrumentation/logs && cat newrelic_agent.log`  

@@ -38,41 +38,41 @@ spec:
           image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: "NEW_RELIC_APP_NAME"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_app_name
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_LICENSE_KEY"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_license_key
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_HOST"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_host
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_API_HOST"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_api_host
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_METRIC_INGEST_URI"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_metric_ingest_uri
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_EVENT_INGEST_URI"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_event_ingest_uri
-                  name: {{ .Release.Name }}-auth
-            - name: "NEW_RELIC_JFR_ENABLED"
-              valueFrom:
-                secretKeyRef:
-                  key: new_relic_jfr_enabled
-                  name: {{ .Release.Name }}-auth
+{{/*            - name: "NEW_RELIC_APP_NAME"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_app_name*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
+{{/*            - name: "NEW_RELIC_LICENSE_KEY"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_license_key*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
+{{/*            - name: "NEW_RELIC_HOST"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_host*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
+{{/*            - name: "NEW_RELIC_API_HOST"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_api_host*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
+{{/*            - name: "NEW_RELIC_METRIC_INGEST_URI"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_metric_ingest_uri*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
+{{/*            - name: "NEW_RELIC_EVENT_INGEST_URI"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_event_ingest_uri*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
+{{/*            - name: "NEW_RELIC_JFR_ENABLED"*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: new_relic_jfr_enabled*/}}
+{{/*                  name: {{ .Release.Name }}-auth*/}}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

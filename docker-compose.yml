@@ -1,5 +1,6 @@
 services:
   petclinic:
+    image: new-relic-java-agent-docker-petclinic:petclinic-app
     build:
       context: .
       dockerfile: Dockerfile

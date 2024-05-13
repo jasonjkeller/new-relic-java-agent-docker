@@ -55,7 +55,23 @@ spec:
     image: ghcr.io/newrelic-experimental/newrelic-agent-operator/instrumentation-java:8.10.0
     env:
     - name: NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED
-      value: "false"
+      value: "true"
+    - name: NEW_RELIC_JFR_ENABLED
+      value: "true"
+    - name: NEW_RELIC_APP_NAME
+      value: "Agent Operator Test"
+    - name: NEW_RELIC_METADATA_KUBERNETES_DEPLOYMENT_NAME
+      value: "foo"
+    - name: NEW_RELIC_METADATA_RELEASE_TAG
+      value: "bar"
+#    - name: NEW_RELIC_HOST
+#      value: "collector.newrelic.com"
+#    - name: NEW_RELIC_API_HOST
+#      value: "rpm.newrelic.com"
+#    - name: NEW_RELIC_METRIC_INGEST_URI
+#      value: "https://metric-api.newrelic.com/metric/v1"
+#    - name: NEW_RELIC_EVENT_INGEST_URI
+#      value: "https://insights-collector.newrelic.com/v1/accounts/events"
   nodejs:
     image: ghcr.io/newrelic-experimental/newrelic-agent-operator/instrumentation-nodejs:11.15.0
   python:
@@ -282,4 +298,10 @@ kubectl get secret newrelic-key-secret -n newrelic -o jsonpath='{.data}'
 Decode the Secret after viewing the contents:
 ```shell
 echo <new_relic_license_key output> | base64 --decode
+```
+
+## Cleanup
+Delete entire namespace:
+```shell
+kubectl delete namespace <NAMESPACE NAME>
 ```
